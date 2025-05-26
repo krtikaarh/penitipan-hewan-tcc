@@ -18,11 +18,18 @@ app.get('/', (req, res) => {
 });
 
 const corsOptions = {
-  origin: [
-    "",
-    "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/",
-  ],
-  credentials: true, // Mengizinkan cookie dikirim
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://mimetic-sweep-450606-j0.uc.r.appspot.com",
+    ];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
