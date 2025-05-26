@@ -1,17 +1,13 @@
 runtime: nodejs20
-instance_class: F1
 
 handlers:
-  - url: /(.*)
-    static_files: build/\1
-    upload: build/.*
-    secure: always
-    http_headers:
-      X-Content-Type-Options: nosniff
-      X-Frame-Options: DENY
-      X-XSS-Protection: "1; mode=block"
+  - url: /static
+    static_dir: build/static
 
-automatic_scaling:
-  min_instances: 1
-  max_instances: 3
-  target_cpu_utilization: 0.65
+  - url: /.*\.(js|css|png|jpg|jpeg|gif|svg|ico|json|txt|map)
+    static_files: build/\0
+    upload: build/.*
+
+  - url: /.*
+    static_files: build/index.html
+    upload: build/index.html
