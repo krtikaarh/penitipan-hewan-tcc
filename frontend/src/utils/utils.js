@@ -1,1 +1,1 @@
-export const BASE_URL = "http://localhost:5000";
+export const BASE_URL = "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/";

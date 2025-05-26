@@ -29,7 +29,7 @@ const DataHewan = () => {
 
   const fetchPemilikData = async () => {
     try {
-      const response = await axiosInstance.get('http://localhost:5000/daftarpemilik', {
+      const response = await axiosInstance.get('https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/', {
         withCredentials: true,
       });
       console.log('Pemilik data fetched:', response.data);
@@ -41,7 +41,7 @@ const DataHewan = () => {
 
   const fetchHewanData = async () => {
     try {
-      const response = await axiosInstance.get(`http://localhost:5000/daftarhewan/${id}`, {
+      const response = await axiosInstance.get(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, {
         withCredentials: true
       });
       const hewan = response.data.data;
@@ -75,12 +75,12 @@ const DataHewan = () => {
 
     try {
       if (isEdit) {
-        await axiosInstance.put(`http://localhost:5000/daftarhewan/${id}`, formData, {
+        await axiosInstance.put(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, formData, {
           withCredentials: true
         });
         alert('Data hewan berhasil diperbarui!');
       } else {
-        await axiosInstance.post('http://localhost:5000/daftarhewan', formData, {
+        await axiosInstance.post('https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/', formData, {
           withCredentials: true
         });
         alert('Data hewan berhasil ditambahkan!');

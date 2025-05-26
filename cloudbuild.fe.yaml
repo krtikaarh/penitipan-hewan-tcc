@@ -1,0 +1,25 @@
+steps:
+  # Step 1: Install dependencies
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["ci"]
+    dir: "frontend"
+    volumes:
+      - name: "npm-cache"
+        path: /root/.npm
+
+  # Step 2: Build frontend
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "build"]
+    dir: "frontend"
+    volumes:
+      - name: "npm-cache"
+        path: /root/.npm
+
+   # Step 3: Deploy ke App Engine
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    args: ["gcloud", "app", "deploy", "--quiet"]
+    dir: "frontend"
+
+
+options:
+  logging: CLOUD_LOGGING_ONLY

@@ -25,7 +25,7 @@ const DataPemilik = () => {
 
   const fetchPemilikData = async () => {
     try {
-      const response = await axiosInstance.get(`http://localhost:5000/daftarpemilik/${id}`, {
+      const response = await axiosInstance.get(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, {
         withCredentials: true
       });
       const pemilik = response.data.data;
@@ -55,12 +55,12 @@ const DataPemilik = () => {
 
     try {
       if (isEdit) {
-        await axiosInstance.put(`http://localhost:5000/daftarpemilik/${id}`, formData, {
+        await axiosInstance.put(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, formData, {
           withCredentials: true
         });
         alert('Data pemilik berhasil diperbarui!');
       } else {
-        await axiosInstance.post('http://localhost:5000/daftarpemilik', formData, {
+        await axiosInstance.post('https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/', formData, {
           withCredentials: true
         });
         alert('Data pemilik berhasil ditambahkan!');

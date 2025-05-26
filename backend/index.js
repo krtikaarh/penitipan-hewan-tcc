@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 const corsOptions = {
   origin: [
     "",
-    "http://localhost:3000",
+    "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/",
   ],
   credentials: true, // Mengizinkan cookie dikirim
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
