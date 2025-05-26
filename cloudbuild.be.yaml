@@ -1,7 +1,7 @@
 steps:
-  # 1. Build Docker image untuk backend
+  # 1. Copy .env file dari Cloud Storage
   - name: "gcr.io/cloud-builders/gsutil"
-    args: ["cp", "${_ENV}", ".env"]
+    args: ["cp", "gs://penitipan-hewan-config/.env", ".env"]
     dir: "backend"
 
   # 2. Build Docker image dari folder backend
@@ -9,32 +9,30 @@ steps:
     args: ["build", "-t", "gcr.io/$PROJECT_ID/penitipan-hewan-backend", "."]
     dir: "backend"
 
-  # Step 2: Push image to Container Registry
+  # 3. Push image ke Container Registry (tag commit SHA)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - 'gcr.io/$PROJECT_ID/penitipan-hewan-backend:$COMMIT_SHA'
     id: 'push-image'
 
-  # Step 3: Push latest tag
+  # 4. Push image ke tag 'latest'
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - 'gcr.io/$PROJECT_ID/penitipan-hewan-backend:latest'
     id: 'push-latest'
 
-  # Step 4: Deploy to Cloud Run dengan env vars dari file
+  # 5. Deploy ke Cloud Run dengan variabel dari file .env
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        # Load environment variables dari .env file
         set -a
         source ./backend/.env
         set +a
-        
-        # Deploy ke Cloud Run dengan environment variables
+
         gcloud run deploy penitipan-hewan-backend \
           --image gcr.io/$PROJECT_ID/penitipan-hewan-backend:$COMMIT_SHA \
           --region asia-southeast2 \
@@ -48,15 +46,9 @@ steps:
     id: 'deploy-service'
     waitFor: ['push-image']
 
-# Timeout untuk seluruh build process
+# Build timeout
 timeout: '1200s'
 
-# Konfigurasi machine type untuk build yang lebih cepat
+# Mesin build yang lebih cepat
 options:
   machineType: 'E2_HIGHCPU_8'
-  logging: CLOUD_LOGGING_ONLY
-
-# Substitusi variables (opsional)
-substitutions:
-  _SERVICE_NAME: 'penitipan-hewan-backend'
-  _REGION: 'asia-southeast2'
