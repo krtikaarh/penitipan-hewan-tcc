@@ -1,25 +1,19 @@
 steps:
-  # Step 1: Install dependencies
-  - name: "gcr.io/cloud-builders/npm"
-    args: ["ci"]
+  # 1. Install dependencies & build React
+  - name: "node"
+    entrypoint: bash
     dir: "frontend"
-    volumes:
-      - name: "npm-cache"
-        path: /root/.npm
+    args:
+      - -c
+      - |
+        npm install
+        npm run build
 
-  # Step 2: Build frontend
-  - name: "gcr.io/cloud-builders/npm"
-    args: ["run", "build"]
-    dir: "frontend"
-    volumes:
-      - name: "npm-cache"
-        path: /root/.npm
-
-   # Step 3: Deploy ke App Engine
+  # 2. Deploy ke App Engine
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    args: ["gcloud", "app", "deploy", "--quiet"]
     dir: "frontend"
+    args: ["gcloud", "app", "deploy", "--quiet"]
 
-
+# Logging ke Cloud Logging
 options:
   logging: CLOUD_LOGGING_ONLY
