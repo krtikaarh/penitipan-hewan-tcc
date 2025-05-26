@@ -10,6 +10,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.get('/', (req, res) => {
+    res.json({
+        message: 'API is running ✅',
+        timestamp: new Date().toISOString(),
+    });
+});
+
 const corsOptions = {
   origin: [
     "",
