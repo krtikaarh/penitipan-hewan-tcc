@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { BASE_URL } from "../utils/utils";
 
 const useAuth = () => {
   const [accessToken, setAccessToken] = useState(() => {
@@ -16,7 +15,7 @@ const useAuth = () => {
   // Login: POST ke backend, simpan token
   const login = async (username, password) => {
     try {
-      const res = await axiosInstance.post(`${BASE_URL}/login`, { username, password });
+      const res = await axiosInstance.post('/login', { username, password });
       const token = res.data.accessToken;
 
     // Simpan token ke localStorage dan state di sini

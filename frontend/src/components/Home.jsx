@@ -2,16 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance'; // import axiosInstance bukan axios
 import '../css/home.css';
+import useAuth from '../auth/useAuth';
 
 const Home = () => {
   const [hewanData, setHewanData] = useState([]);
   const [pemilikData, setPemilikData] = useState([]);
+  const { accessToken, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      // Kalau belum login, redirect ke login
+      navigate('/login');
+      return;
+    }
+    // Kalau sudah login, fetch data
     fetchHewanData();
     fetchPemilikData();
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   const fetchHewanData = async () => {
     try {
