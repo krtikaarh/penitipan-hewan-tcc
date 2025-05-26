@@ -1,0 +1,62 @@
+steps:
+  # 1. Build Docker image untuk backend
+  - name: "gcr.io/cloud-builders/gsutil"
+    args: ["cp", "${_ENV}", ".env"]
+    dir: "backend"
+
+  # 2. Build Docker image dari folder backend
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/penitipan-hewan-backend", "."]
+    dir: "backend"
+
+  # Step 2: Push image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/penitipan-hewan-backend:$COMMIT_SHA'
+    id: 'push-image'
+
+  # Step 3: Push latest tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/penitipan-hewan-backend:latest'
+    id: 'push-latest'
+
+  # Step 4: Deploy to Cloud Run dengan env vars dari file
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Load environment variables dari .env file
+        set -a
+        source ./backend/.env
+        set +a
+        
+        # Deploy ke Cloud Run dengan environment variables
+        gcloud run deploy penitipan-hewan-backend \
+          --image gcr.io/$PROJECT_ID/penitipan-hewan-backend:$COMMIT_SHA \
+          --region asia-southeast2 \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 5000 \
+          --memory 1Gi \
+          --cpu 1 \
+          --max-instances 10 \
+          --set-env-vars "NODE_ENV=production,PORT=5000,DB_NAME=${DB_NAME},DB_USERNAME=${DB_USERNAME},DB_PASSWORD=${DB_PASSWORD},DB_HOST=${DB_HOST},ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET},REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}"
+    id: 'deploy-service'
+    waitFor: ['push-image']
+
+# Timeout untuk seluruh build process
+timeout: '1200s'
+
+# Konfigurasi machine type untuk build yang lebih cepat
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Substitusi variables (opsional)
+substitutions:
+  _SERVICE_NAME: 'penitipan-hewan-backend'
+  _REGION: 'asia-southeast2'
