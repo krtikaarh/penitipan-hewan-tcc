@@ -13,6 +13,7 @@ const port = process.env.PORT || 5000;
 // Middleware urutan kritis
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors(corsOptions));
 app.use("/api", router);
 
 
@@ -37,8 +38,6 @@ const corsOptions = {
   exposedHeaders: ["Authorization"],
   optionsSuccessStatus: 200
 };
-
-app.use(cors(corsOptions));
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -73,8 +72,6 @@ app.get('/db-status', async (req, res) => {
     res.status(500).json({ database: 'disconnected', error: error.message });
   }
 });
-
-app.use(router);
 
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
