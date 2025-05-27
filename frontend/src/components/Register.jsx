@@ -36,7 +36,12 @@ function Register() {
         if (status === 400) {
           setErrorMsg('Username sudah digunakan atau data tidak valid');
         } else if (status === 500) {
-          setErrorMsg('Server error. Silakan coba lagi nanti.');
+          // Handle specific database errors
+          if (message.includes('Access denied') || message.includes('User gagal dibuat')) {
+            setErrorMsg('Sistem sedang dalam perbaikan. Silakan coba lagi nanti.');
+          } else {
+            setErrorMsg('Server error. Silakan coba lagi nanti.');
+          }
         } else {
           setErrorMsg(`Error ${status}: ${message}`);
         }
