@@ -15,6 +15,7 @@ const DataHewan = () => {
   const [pemilikData, setPemilikData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [error, setError] = useState('');
   
   const navigate = useNavigate();
   const { id } = useParams();
@@ -29,32 +30,44 @@ const DataHewan = () => {
 
   const fetchPemilikData = async () => {
     try {
-      const response = await axiosInstance.get('https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/', {
-        withCredentials: true,
-      });
-      console.log('Pemilik data fetched:', response.data);
-      setPemilikData(response.data.data || []);
+      console.log('🔄 Fetching pemilik data...');
+      // Gunakan endpoint yang benar untuk mengambil data pemilik
+      const response = await axiosInstance.get('/pemilik');
+      console.log('✅ Pemilik data fetched:', response.data);
+      
+      // Adjust sesuai struktur response dari backend
+      setPemilikData(response.data.data || response.data || []);
     } catch (error) {
-      console.error('Error fetching pemilik data:', error);
+      console.error('❌ Error fetching pemilik data:', error);
+      setError('Gagal mengambil data pemilik');
+      
+      // Set data dummy untuk development/testing
+      setPemilikData([
+        { id: 1, nama_pemilik: 'John Doe', no_hp: '081234567890' },
+        { id: 2, nama_pemilik: 'Jane Smith', no_hp: '089876543210' }
+      ]);
     }
   };
 
   const fetchHewanData = async () => {
     try {
-      const response = await axiosInstance.get(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, {
-        withCredentials: true
-      });
-      const hewan = response.data.data;
+      console.log('🔄 Fetching hewan data for ID:', id);
+      // Gunakan endpoint yang benar dengan ID
+      const response = await axiosInstance.get(`/hewan/${id}`);
+      console.log('✅ Hewan data fetched:', response.data);
+      
+      const hewan = response.data.data || response.data;
       setFormData({
-        nama_hewan: hewan.nama_hewan,
-        bobot_hewan: hewan.bobot_hewan,
-        keterangan_khusus: hewan.keterangan_khusus,
-        ras: hewan.ras,
-        gambar: hewan.gambar,
-        pemilikId: hewan.pemilikId
+        nama_hewan: hewan.nama_hewan || '',
+        bobot_hewan: hewan.bobot_hewan || '',
+        keterangan_khusus: hewan.keterangan_khusus || '',
+        ras: hewan.ras || '',
+        gambar: hewan.gambar || '',
+        pemilikId: hewan.pemilikId || ''
       });
     } catch (error) {
-      console.error('Error fetching hewan data:', error);
+      console.error('❌ Error fetching hewan data:', error);
+      setError('Data hewan tidak ditemukan');
       alert('Data hewan tidak ditemukan');
       navigate('/home');
     }
@@ -65,30 +78,54 @@ const DataHewan = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError(''); // Clear error saat user mulai mengetik
+  };
+
+  const validateForm = () => {
+    if (!formData.nama_hewan.trim()) {
+      setError('Nama hewan harus diisi');
+      return false;
+    }
+    if (!formData.bobot_hewan || formData.bobot_hewan <= 0) {
+      setError('Bobot hewan harus diisi dan lebih dari 0');
+      return false;
+    }
+    if (!formData.pemilikId) {
+      setError('Pemilik hewan harus dipilih');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
-    console.log("Token sekarang:", localStorage.getItem("accessToken"));
-
     try {
+      console.log('🔄 Saving hewan data:', formData);
+      
       if (isEdit) {
-        await axiosInstance.put(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, formData, {
-          withCredentials: true
-        });
+        // PUT untuk update data existing
+        await axiosInstance.put(`/hewan/${id}`, formData);
+        console.log('✅ Hewan data updated successfully');
         alert('Data hewan berhasil diperbarui!');
       } else {
-        await axiosInstance.post('https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/', formData, {
-          withCredentials: true
-        });
+        // POST untuk create data baru
+        await axiosInstance.post('/hewan', formData);
+        console.log('✅ Hewan data created successfully');
         alert('Data hewan berhasil ditambahkan!');
       }
       navigate('/home');
     } catch (error) {
-      console.error('Error saving hewan:', error);
-      alert('Error menyimpan data hewan: ' + (error.response?.data?.message || error.message));
+      console.error('❌ Error saving hewan:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Terjadi kesalahan';
+      setError(`Error menyimpan data hewan: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -108,6 +145,12 @@ const DataHewan = () => {
       </div>
 
       <div className="form-container">
+        {error && (
+          <div className="error-message" role="alert">
+            ❌ {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="data-form">
           <div className="form-group">
             <label htmlFor="nama_hewan">Nama Hewan *</label>
@@ -119,6 +162,7 @@ const DataHewan = () => {
               onChange={handleInputChange}
               placeholder="Masukkan nama hewan"
               required
+              disabled={loading}
             />
           </div>
 
@@ -131,9 +175,10 @@ const DataHewan = () => {
               value={formData.bobot_hewan}
               onChange={handleInputChange}
               placeholder="Masukkan bobot hewan"
-              min="0"
+              min="0.1"
               step="0.1"
               required
+              disabled={loading}
             />
           </div>
 
@@ -146,6 +191,7 @@ const DataHewan = () => {
               value={formData.ras}
               onChange={handleInputChange}
               placeholder="Masukkan ras hewan"
+              disabled={loading}
             />
           </div>
 
@@ -158,6 +204,7 @@ const DataHewan = () => {
               onChange={handleInputChange}
               placeholder="Masukkan keterangan khusus"
               rows="4"
+              disabled={loading}
             />
           </div>
 
@@ -170,10 +217,17 @@ const DataHewan = () => {
               value={formData.gambar}
               onChange={handleInputChange}
               placeholder="Masukkan URL gambar hewan"
+              disabled={loading}
             />
             {formData.gambar && (
               <div className="image-preview">
-                <img src={formData.gambar} alt="Preview" />
+                <img 
+                  src={formData.gambar} 
+                  alt="Preview" 
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
               </div>
             )}
           </div>
@@ -186,6 +240,7 @@ const DataHewan = () => {
               value={formData.pemilikId}
               onChange={handleInputChange}
               required
+              disabled={loading}
             >
               <option value="">Pilih Pemilik</option>
               {pemilikData.map((pemilik) => (
@@ -194,15 +249,20 @@ const DataHewan = () => {
                 </option>
               ))}
             </select>
+            {pemilikData.length === 0 && (
+              <small className="form-text">
+                Tidak ada data pemilik. Tambahkan data pemilik terlebih dahulu.
+              </small>
+            )}
           </div>
 
           <div className="form-actions">
             <button 
               type="submit" 
               className="submit-btn"
-              disabled={loading}
+              disabled={loading || pemilikData.length === 0}
             >
-              {loading ? 'Menyimpan...' : (isEdit ? 'Perbarui Data' : 'Simpan Data')}
+              {loading ? '⏳ Menyimpan...' : (isEdit ? '📝 Perbarui Data' : '💾 Simpan Data')}
             </button>
             <button 
               type="button" 
@@ -210,10 +270,20 @@ const DataHewan = () => {
               onClick={handleCancel}
               disabled={loading}
             >
-              Batal
+              ❌ Batal
             </button>
           </div>
         </form>
+
+        <div className="form-info">
+          <h3>Informasi:</h3>
+          <ul>
+            <li>Field bertanda (*) wajib diisi</li>
+            <li>Bobot hewan dalam satuan kilogram</li>
+            <li>Pastikan memilih pemilik yang sesuai</li>
+            <li>URL gambar harus valid (opsional)</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

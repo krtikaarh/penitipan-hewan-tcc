@@ -12,6 +12,7 @@ const DataPemilik = () => {
   });
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [error, setError] = useState('');
   
   const navigate = useNavigate();
   const { id } = useParams();
@@ -25,18 +26,21 @@ const DataPemilik = () => {
 
   const fetchPemilikData = async () => {
     try {
-      const response = await axiosInstance.get(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, {
-        withCredentials: true
-      });
-      const pemilik = response.data.data;
+      console.log('🔄 Fetching pemilik data for ID:', id);
+      // Gunakan endpoint yang benar dengan ID
+      const response = await axiosInstance.get(`/pemilik/${id}`);
+      console.log('✅ Pemilik data fetched:', response.data);
+      
+      const pemilik = response.data.data || response.data;
       setFormData({
-        nama_pemilik: pemilik.nama_pemilik,
-        no_hp: pemilik.no_hp,
-        alamat: pemilik.alamat,
-        email: pemilik.email
+        nama_pemilik: pemilik.nama_pemilik || '',
+        no_hp: pemilik.no_hp || '',
+        alamat: pemilik.alamat || '',
+        email: pemilik.email || ''
       });
     } catch (error) {
-      console.error('Error fetching pemilik data:', error);
+      console.error('❌ Error fetching pemilik data:', error);
+      setError('Data pemilik tidak ditemukan');
       alert('Data pemilik tidak ditemukan');
       navigate('/home');
     }
@@ -47,35 +51,7 @@ const DataPemilik = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (isEdit) {
-        await axiosInstance.put(`https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/`, formData, {
-          withCredentials: true
-        });
-        alert('Data pemilik berhasil diperbarui!');
-      } else {
-        await axiosInstance.post('https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/', formData, {
-          withCredentials: true
-        });
-        alert('Data pemilik berhasil ditambahkan!');
-      }
-      navigate('/home');
-    } catch (error) {
-      console.error('Error saving pemilik:', error);
-      alert('Error menyimpan data pemilik: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    navigate('/home');
+    setError(''); // Clear error saat user mulai mengetik
   };
 
   const validateEmail = (email) => {
@@ -84,8 +60,101 @@ const DataPemilik = () => {
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^[\d\s\-\+\(\)]+$/;
-    return phoneRegex.test(phone);
+    const phoneRegex = /^[0-9\s\-\+\(\)]+$/;
+    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+  };
+
+  const validateForm = () => {
+    if (!formData.nama_pemilik.trim()) {
+      setError('Nama pemilik harus diisi');
+      return false;
+    }
+    if (!formData.no_hp.trim()) {
+      setError('Nomor HP harus diisi');
+      return false;
+    }
+    if (!validatePhone(formData.no_hp)) {
+      setError('Format nomor HP tidak valid (minimal 10 digit)');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email harus diisi');
+      return false;
+    }
+    if (!validateEmail(formData.email)) {
+      setError('Format email tidak valid');
+      return false;
+    }
+    if (!formData.alamat.trim()) {
+      setError('Alamat harus diisi');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      console.log('🔄 Saving pemilik data:', formData);
+      
+      // Trim whitespace dari semua field
+      const cleanFormData = {
+        nama_pemilik: formData.nama_pemilik.trim(),
+        no_hp: formData.no_hp.trim(),
+        alamat: formData.alamat.trim(),
+        email: formData.email.trim().toLowerCase()
+      };
+
+      if (isEdit) {
+        // PUT untuk update data existing
+        await axiosInstance.put(`/pemilik/${id}`, cleanFormData);
+        console.log('✅ Pemilik data updated successfully');
+        alert('Data pemilik berhasil diperbarui!');
+      } else {
+        // POST untuk create data baru
+        await axiosInstance.post('/pemilik', cleanFormData);
+        console.log('✅ Pemilik data created successfully');
+        alert('Data pemilik berhasil ditambahkan!');
+      }
+      navigate('/home');
+    } catch (error) {
+      console.error('❌ Error saving pemilik:', error);
+      
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        
+        switch (status) {
+          case 400:
+            setError(data.message || 'Data yang dimasukkan tidak valid');
+            break;
+          case 409:
+            setError('Email atau nomor HP sudah digunakan');
+            break;
+          case 500:
+            setError('Terjadi kesalahan server. Silakan coba lagi nanti.');
+            break;
+          default:
+            setError(data.message || `Error ${status}: Gagal menyimpan data`);
+        }
+      } else {
+        setError('Tidak dapat terhubung ke server');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/home');
   };
 
   const isFormValid = () => {
@@ -109,6 +178,12 @@ const DataPemilik = () => {
       </div>
 
       <div className="form-container">
+        {error && (
+          <div className="error-message" role="alert">
+            ❌ {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="data-form">
           <div className="form-group">
             <label htmlFor="nama_pemilik">Nama Pemilik *</label>
@@ -120,6 +195,7 @@ const DataPemilik = () => {
               onChange={handleInputChange}
               placeholder="Masukkan nama lengkap pemilik"
               required
+              disabled={loading}
             />
           </div>
 
@@ -133,9 +209,12 @@ const DataPemilik = () => {
               onChange={handleInputChange}
               placeholder="Masukkan nomor HP (contoh: 081234567890)"
               required
+              disabled={loading}
             />
             {formData.no_hp && !validatePhone(formData.no_hp) && (
-              <span className="error-text">Format nomor HP tidak valid</span>
+              <span className="error-text">
+                Format nomor HP tidak valid (minimal 10 digit)
+              </span>
             )}
           </div>
 
@@ -149,6 +228,7 @@ const DataPemilik = () => {
               onChange={handleInputChange}
               placeholder="Masukkan alamat email"
               required
+              disabled={loading}
             />
             {formData.email && !validateEmail(formData.email) && (
               <span className="error-text">Format email tidak valid</span>
@@ -165,6 +245,7 @@ const DataPemilik = () => {
               placeholder="Masukkan alamat lengkap pemilik"
               rows="4"
               required
+              disabled={loading}
             />
           </div>
 
@@ -174,7 +255,7 @@ const DataPemilik = () => {
               className="submit-btn"
               disabled={loading || !isFormValid()}
             >
-              {loading ? 'Menyimpan...' : (isEdit ? 'Perbarui Data' : 'Simpan Data')}
+              {loading ? '⏳ Menyimpan...' : (isEdit ? '📝 Perbarui Data' : '💾 Simpan Data')}
             </button>
             <button 
               type="button" 
@@ -182,7 +263,7 @@ const DataPemilik = () => {
               onClick={handleCancel}
               disabled={loading}
             >
-              Batal
+              ❌ Batal
             </button>
           </div>
         </form>
@@ -191,9 +272,9 @@ const DataPemilik = () => {
           <h3>Informasi:</h3>
           <ul>
             <li>Semua field yang bertanda (*) wajib diisi</li>
-            <li>Pastikan email menggunakan format yang benar</li>
-            <li>Nomor HP harus berupa angka yang valid</li>
-            <li>Alamat harus diisi dengan lengkap</li>
+            <li>Email harus menggunakan format yang benar (contoh: user@email.com)</li>
+            <li>Nomor HP harus berupa angka dan minimal 10 digit</li>
+            <li>Alamat harus diisi dengan lengkap dan jelas</li>
           </ul>
         </div>
       </div>
