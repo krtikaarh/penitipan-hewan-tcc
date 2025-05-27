@@ -1,6 +1,11 @@
 runtime: nodejs20
 
 handlers:
+  -  url: /manifest.json
+     static_files: build/manifest.json
+     upload: build/manifest.json
+     secure: always
+     
   - url: /static
     static_dir: build/static
 

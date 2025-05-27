@@ -16,7 +16,7 @@ function Register() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/user', { username, password });
+      const response = await axios.post('/register', { username, password });
       console.log('Registrasi berhasil:', response.data);
       
       // Redirect ke login setelah berhasil register
