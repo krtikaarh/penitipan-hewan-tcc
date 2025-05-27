@@ -13,6 +13,8 @@ const port = process.env.PORT || 5000;
 // Middleware urutan kritis
 app.use(express.json());
 app.use(cookieParser());
+app.use("/api", router);
+
 
 const allowedOrigins = [
   "http://localhost:3000",
