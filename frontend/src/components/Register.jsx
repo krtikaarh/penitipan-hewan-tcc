@@ -4,80 +4,57 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axiosInstance.js';
 
 function Register() {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
-    
-    // Validasi client-side
-    if (!formData.username.trim() || !formData.password.trim()) {
-      setErrorMsg('Username dan password wajib diisi');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setErrorMsg('Password minimal 6 karakter');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/register', formData);
+      const response = await axios.post('/register', { username, password });
+      console.log('Registrasi berhasil:', response.data);
       
-      if (response.data.success) {
-        navigate('/login', { 
-          state: { 
-            registrationSuccess: true,
-            username: formData.username 
-          } 
-        });
-      } else {
-        setErrorMsg(response.data.message || 'Registrasi gagal');
-      }
+      // Redirect ke login setelah berhasil register
+      navigate('/login');
     } catch (error) {
-      let errorMessage = 'Terjadi kesalahan';
+      console.error('Registrasi gagal:', error);
       
+      // Handle different types of errors
       if (error.response) {
-        // Error dari server
-        const { status, data } = error.response;
+        // Server responded with error status
+        const status = error.response.status;
+        const message = error.response.data?.message || error.response.data || 'Registrasi gagal';
+        
+        console.log('Error response:', error.response.data);
+        console.log('Error status:', status);
         
         if (status === 400) {
-          errorMessage = data.message || 'Data tidak valid';
-        } 
-        else if (status === 409) {
-          errorMessage = 'Username sudah digunakan';
+          setErrorMsg('Username sudah digunakan atau data tidak valid');
+        } else if (status === 500) {
+          // Handle specific database errors
+          if (message.includes('Access denied') || message.includes('User gagal dibuat')) {
+            setErrorMsg('Sistem sedang dalam perbaikan. Silakan coba lagi nanti.');
+          } else {
+            setErrorMsg('Server error. Silakan coba lagi nanti.');
+          }
+        } else {
+          setErrorMsg(`Error ${status}: ${message}`);
         }
-        else if (status === 500) {
-          errorMessage = 'Server error. Silakan coba lagi nanti.';
-        }
-      } 
-      else if (error.request) {
-        errorMessage = 'Tidak ada respon dari server';
-      } 
-      else {
-        errorMessage = error.message;
+      } else if (error.request) {
+        // Request was made but no response received
+        console.log('No response received:', error.request);
+        setErrorMsg('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      } else {
+        // Something else happened
+        console.log('Error:', error.message);
+        setErrorMsg('Terjadi kesalahan: ' + error.message);
       }
-
-      setErrorMsg(errorMessage);
-      console.error('Registration error:', error);
-    } 
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
