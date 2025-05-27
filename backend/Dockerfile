@@ -39,10 +39,6 @@ USER nodejs
 # Expose port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js || exit 1
-
 # Start application dengan dumb-init
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "index.js"]
