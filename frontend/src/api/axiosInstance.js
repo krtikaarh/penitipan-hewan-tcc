@@ -57,13 +57,13 @@ axiosInstance.interceptors.response.use(
         );
         
         const newToken = refreshResponse.data.accessToken;
-        localStorage.setItem('accessToken', newToken);
+        localStorage.setItem("token", newToken);
         
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
-        localStorage.removeItem('accessToken');
+        localStorage.removeItem("token");
         localStorage.removeItem('username');
         window.location.href = '/login';
       }
