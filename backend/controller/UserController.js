@@ -1,6 +1,7 @@
 import User from "../models/UserModel.js";
 import bcrypt from "bcrypt"; // buat ngehash password
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 // Ambil semua user
 export const getUser = async (req, res) => {
