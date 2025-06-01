@@ -1,3 +1,5 @@
+// update
+
 import React, { useState } from 'react';
 import '../css/login.css';
 import { useNavigate, Link } from 'react-router-dom';
@@ -7,51 +9,82 @@ function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
+    setSuccessMsg('');
     setIsLoading(true);
 
+    // Validasi input
+    if (!username.trim() || !password.trim()) {
+      setErrorMsg('Username dan password tidak boleh kosong');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 4) {
+      setErrorMsg('Password minimal 4 karakter');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('/register', { username, password });
-      console.log('Registrasi berhasil:', response.data);
+      console.log('🚀 Attempting registration for:', username);
       
-      // Redirect ke login setelah berhasil register
-      navigate('/login');
+      const response = await axios.post('/register', { 
+        username: username.trim(), 
+        password 
+      });
+      
+      console.log('✅ Registrasi berhasil:', response.data);
+      setSuccessMsg('Registrasi berhasil! Mengalihkan ke halaman login...');
+      
+      // Delay sebelum redirect untuk menampilkan pesan sukses
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      
     } catch (error) {
-      console.error('Registrasi gagal:', error);
+      console.error('❌ Registrasi gagal:', error);
       
-      // Handle different types of errors
       if (error.response) {
-        // Server responded with error status
         const status = error.response.status;
-        const message = error.response.data?.message || error.response.data || 'Registrasi gagal';
+        const message = error.response.data?.message || 'Registrasi gagal';
         
-        console.log('Error response:', error.response.data);
-        console.log('Error status:', status);
+        console.log('📝 Error details:', {
+          status,
+          message,
+          data: error.response.data
+        });
         
-        if (status === 400) {
-          setErrorMsg('Username sudah digunakan atau data tidak valid');
-        } else if (status === 500) {
-          // Handle specific database errors
-          if (message.includes('Access denied') || message.includes('User gagal dibuat')) {
-            setErrorMsg('Sistem sedang dalam perbaikan. Silakan coba lagi nanti.');
-          } else {
-            setErrorMsg('Server error. Silakan coba lagi nanti.');
-          }
-        } else {
-          setErrorMsg(`Error ${status}: ${message}`);
+        switch (status) {
+          case 400:
+            setErrorMsg(message || 'Username sudah digunakan atau data tidak valid');
+            break;
+          case 404:
+            setErrorMsg('Endpoint tidak ditemukan. Hubungi administrator.');
+            break;
+          case 500:
+            if (message.includes('Access denied') || message.includes('connect ECONNREFUSED')) {
+              setErrorMsg('Database tidak dapat diakses. Silakan coba lagi nanti.');
+            } else {
+              setErrorMsg('Server error. Silakan coba lagi nanti.');
+            }
+            break;
+          default:
+            setErrorMsg(`Error ${status}: ${message}`);
         }
       } else if (error.request) {
-        // Request was made but no response received
-        console.log('No response received:', error.request);
-        setErrorMsg('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+        console.log('📡 No response received:', error.request);
+        setErrorMsg('Tidak dapat terhubung ke server. Periksa koneksi internet.');
+      } else if (error.code === 'ECONNABORTED') {
+        setErrorMsg('Request timeout. Server terlalu lama merespon.');
       } else {
-        // Something else happened
-        console.log('Error:', error.message);
+        console.log('⚠️ Other error:', error.message);
         setErrorMsg('Terjadi kesalahan: ' + error.message);
       }
     } finally {
@@ -74,6 +107,7 @@ function Register() {
             required
             autoComplete="username"
             disabled={isLoading}
+            minLength={3}
           />
 
           <label htmlFor="password">Password</label>
@@ -82,15 +116,22 @@ function Register() {
             id="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="masukkan password"
+            placeholder="masukkan password (minimal 4 karakter)"
             required
             autoComplete="new-password"
             disabled={isLoading}
+            minLength={4}
           />
 
           {errorMsg && (
             <div className="error-message" role="alert" aria-live="assertive">
-              {errorMsg}
+              ❌ {errorMsg}
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="success-message" role="alert" aria-live="assertive">
+              ✅ {successMsg}
             </div>
           )}
 
