@@ -16,7 +16,7 @@ function Login() {
     try {
       const response = await axios.post('/login', { username, password });
       const { accessToken } = response.data;
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('token', accessToken);
       localStorage.setItem('username', username);
       navigate('/home');
     } catch (error) {
