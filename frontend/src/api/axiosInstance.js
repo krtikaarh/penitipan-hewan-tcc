@@ -4,6 +4,9 @@ const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/api",
   withCredentials: true,
   timeout: 10000, // 10 seconds timeout
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Request interceptor - menambahkan token ke header
