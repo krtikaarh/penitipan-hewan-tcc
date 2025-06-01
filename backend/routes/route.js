@@ -29,7 +29,7 @@ import {
 
 const router = express.Router();
 
-router.get('/user', verifyToken, getUser);
+router.get("/user", getUser);
 router.post("/register", Register);
 router.post("/login", Login);
 router.get("/token", refreshToken);
