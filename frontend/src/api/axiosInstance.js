@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/api",
+  baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app",
   withCredentials: true,
   timeout: 10000, // 10 seconds timeout
 });
