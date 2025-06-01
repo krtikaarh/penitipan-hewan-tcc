@@ -100,3 +100,21 @@ DELETE http://localhost:5000/daftarhewan/1
 
 ###
 DELETE http://localhost:5000/logout
+
+###
+POST https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/register
+Content-Type: application/json 
+
+{
+    "username": "abcde", 
+    "password": "12345"  
+}
+
+###
+POST https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/api/login
+Content-Type: application/json 
+
+{
+    "username": "adminkyut123", 
+    "password": "12345"  
+}
