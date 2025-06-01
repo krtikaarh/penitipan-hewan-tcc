@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  // Remove /api from the base URL
-  baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app",
+  baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/api",
   withCredentials: true,
   timeout: 10000, // 10 seconds timeout
 });
@@ -10,7 +9,7 @@ const axiosInstance = axios.create({
 // Request interceptor - menambahkan token ke header
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken"); // ✅ Gunakan accessToken
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -53,18 +52,18 @@ axiosInstance.interceptors.response.use(
       
       try {
         const refreshResponse = await axios.get(
-          `${axiosInstance.defaults.baseURL}/token`,
+          `${axiosInstance.defaults.baseURL}token`,
           { withCredentials: true }
         );
         
         const newToken = refreshResponse.data.accessToken;
-        localStorage.setItem("accessToken", newToken);
+        localStorage.setItem("token", newToken);
         
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
         localStorage.removeItem('username');
         window.location.href = '/login';
       }
