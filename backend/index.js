@@ -36,6 +36,14 @@ const corsOptions = {
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    body: req.body,
+    headers: req.headers,
+    query: req.query
+  });
+  next();
+});
 app.use("/api", router);
 
 // Health check endpoint
