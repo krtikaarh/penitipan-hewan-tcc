@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/api",
+  // Remove /api from the base URL
+  baseURL: process.env.REACT_APP_API_URL || "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app",
   withCredentials: true,
   timeout: 10000, // 10 seconds timeout
 });
@@ -52,18 +53,18 @@ axiosInstance.interceptors.response.use(
       
       try {
         const refreshResponse = await axios.get(
-          `${axiosInstance.defaults.baseURL}/token`, // ✅ Tambahkan / sebelum token
+          `${axiosInstance.defaults.baseURL}/token`,
           { withCredentials: true }
         );
         
         const newToken = refreshResponse.data.accessToken;
-        localStorage.setItem("accessToken", newToken); // ✅ Gunakan accessToken
+        localStorage.setItem("accessToken", newToken);
         
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
-        localStorage.removeItem("accessToken"); // ✅ Gunakan accessToken
+        localStorage.removeItem("accessToken");
         localStorage.removeItem('username');
         window.location.href = '/login';
       }
