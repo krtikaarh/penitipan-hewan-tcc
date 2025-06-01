@@ -1,1 +1,1 @@
-export const BASE_URL = "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app";
+export const BASE_URL = "https://penitipan-hewan-backend-353267785618.asia-southeast2.run.app/api";
