@@ -27,7 +27,7 @@ WORKDIR /app
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
 # Copy source code
-COPY --chown=nodejs:nodejs .env .env
+COPY --chown=nodejs:nodejs . .
 
 # Set environment variables
 ENV NODE_ENV=production
