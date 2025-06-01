@@ -3,6 +3,8 @@ import bcrypt from "bcrypt"; // buat ngehash password
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
+dotenv.config();
+
 // Ambil semua user
 export const getUser = async (req, res) => {
   try {
