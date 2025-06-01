@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
 // Request interceptor - menambahkan token ke header
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken"); // ✅ Gunakan accessToken
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -52,18 +52,18 @@ axiosInstance.interceptors.response.use(
       
       try {
         const refreshResponse = await axios.get(
-          `${axiosInstance.defaults.baseURL}token`,
+          `${axiosInstance.defaults.baseURL}/token`, // ✅ Tambahkan / sebelum token
           { withCredentials: true }
         );
         
         const newToken = refreshResponse.data.accessToken;
-        localStorage.setItem("token", newToken);
+        localStorage.setItem("accessToken", newToken); // ✅ Gunakan accessToken
         
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken"); // ✅ Gunakan accessToken
         localStorage.removeItem('username');
         window.location.href = '/login';
       }

@@ -15,14 +15,29 @@ function Register() {
     setErrorMsg('');
     setIsLoading(true);
 
+    console.log('🚀 Starting registration process...');
+    console.log('📝 Form data:', { username, password: '***' });
+    console.log('🌐 Base URL:', axios.defaults.baseURL);
+
     try {
+      console.log('📤 Sending POST request to /register...');
       const response = await axios.post('/register', { username, password });
-      console.log('Registrasi berhasil:', response.data);
+      
+      console.log('✅ Registration successful:', response.data);
+      console.log('📊 Response status:', response.status);
       
       // Redirect ke login setelah berhasil register
       navigate('/login');
     } catch (error) {
-      console.error('Registrasi gagal:', error);
+      console.error('❌ Registration failed:', error);
+      
+      // Log complete error object
+      console.log('🔍 Full error object:', {
+        message: error.message,
+        code: error.code,
+        request: error.request,
+        response: error.response
+      });
       
       // Handle different types of errors
       if (error.response) {
@@ -30,10 +45,13 @@ function Register() {
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data || 'Registrasi gagal';
         
-        console.log('Error response:', error.response.data);
-        console.log('Error status:', status);
+        console.log('📨 Error response data:', error.response.data);
+        console.log('🚨 Error status:', status);
+        console.log('📄 Response headers:', error.response.headers);
         
-        if (status === 400) {
+        if (status === 404) {
+          setErrorMsg('❌ Endpoint tidak ditemukan. Server mungkin sedang bermasalah.');
+        } else if (status === 400) {
           setErrorMsg('Username sudah digunakan atau data tidak valid');
         } else if (status === 500) {
           // Handle specific database errors
@@ -47,15 +65,16 @@ function Register() {
         }
       } else if (error.request) {
         // Request was made but no response received
-        console.log('No response received:', error.request);
+        console.log('🔌 No response received:', error.request);
         setErrorMsg('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
       } else {
         // Something else happened
-        console.log('Error:', error.message);
+        console.log('⚠️ Unknown error:', error.message);
         setErrorMsg('Terjadi kesalahan: ' + error.message);
       }
     } finally {
       setIsLoading(false);
+      console.log('🏁 Registration process completed');
     }
   };
 
