@@ -1,5 +1,5 @@
 import db from "../config/Database.js";
-import User from './UserModel.js';
+import User from "./UserModel.js";
 import DaftarHewan from "./DaftarHewanModel.js";
 import DaftarPemilik from "./DaftarPemilikModel.js";
 
@@ -27,4 +27,4 @@ DaftarHewan.belongsTo(User, { foreignKey: "userId" });
   }
 })();
 
-export { User, DaftarHewan, DaftarPemilik };
+export { User, DaftarHewan, DaftarPemilik, db as sequelize };
