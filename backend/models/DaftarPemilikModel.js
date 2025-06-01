@@ -1,3 +1,5 @@
+// update
+
 import { DataTypes } from "sequelize";
 import db from "../config/Database.js";
 
@@ -17,11 +19,15 @@ const DaftarPemilik = db.define("daftar_pemilik", {
   },
   alamat: {
     type: DataTypes.TEXT,
-    allowNull: true,
+    allowNull: false, // ✅ Ubah menjadi false agar konsisten dengan controller
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false, // ✅ Ubah menjadi false agar konsisten dengan controller
+  },
+  userId: { // ✅ Tambahkan field userId yang hilang
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
 }, {
   freezeTableName: true,

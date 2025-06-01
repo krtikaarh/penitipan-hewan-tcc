@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { BASE_URL } from "../utils/utils";
+// import { BASE_URL } from "../utils/utils";
 
 const useAuth = () => {
   const [accessToken, setAccessToken] = useState(() => {
