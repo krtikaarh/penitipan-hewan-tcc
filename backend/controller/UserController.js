@@ -18,30 +18,44 @@ export const getUser = async (req, res) => {
 
 // Register
 export const Register = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password } = req.body; // Hanya ambil username dan password
+
+  // Validasi input
+  if (!username || !password) {
+    return res.status(400).json({ 
+      message: "Username dan password harus diisi" 
+    });
+  }
 
   try {
     // Cek apakah username sudah terdaftar
     const existingUser = await User.findOne({ where: { username } });
+    
     if (existingUser) {
-      return res.status(400).json({ message: "Username sudah terdaftar" });
+      return res.status(400).json({ 
+        message: "Username sudah terdaftar" 
+      });
     }
 
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(password, salt);
 
-    const data = await User.create({
+    const newUser = await User.create({
       username,
       password: hashPassword,
     });
 
     res.status(201).json({
-      message: "User berhasil dibuat",
-      data,
+      message: "Registrasi berhasil",
+      data: {
+        id: newUser.id,
+        username: newUser.username
+      }
     });
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).json({
-      message: "User gagal dibuat",
+      message: "Registrasi gagal",
       error: error.message,
     });
   }

@@ -11,53 +11,37 @@ function Register() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    setIsLoading(true);
+  e.preventDefault();
+  setErrorMsg('');
+  setIsLoading(true);
 
-    try {
-      const response = await axios.post('/api/register', { username, password });
-      console.log('Registrasi berhasil:', response.data);
+  try {
+    const response = await axios.post('/api/register', { 
+      username, 
+      password 
+    });
+    
+    console.log('Registrasi berhasil:', response.data);
+    navigate('/login');
+  } catch (error) {
+    console.error('Registrasi gagal:', error);
+    
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data?.message || 'Registrasi gagal';
       
-      // Redirect ke login setelah berhasil register
-      navigate('/login');
-    } catch (error) {
-      console.error('Registrasi gagal:', error);
-      
-      // Handle different types of errors
-      if (error.response) {
-        // Server responded with error status
-        const status = error.response.status;
-        const message = error.response.data?.message || error.response.data || 'Registrasi gagal';
-        
-        console.log('Error response:', error.response.data);
-        console.log('Error status:', status);
-        
-        if (status === 400) {
-          setErrorMsg('Username sudah digunakan atau data tidak valid');
-        } else if (status === 500) {
-          // Handle specific database errors
-          if (message.includes('Access denied') || message.includes('User gagal dibuat')) {
-            setErrorMsg('Sistem sedang dalam perbaikan. Silakan coba lagi nanti.');
-          } else {
-            setErrorMsg('Server error. Silakan coba lagi nanti.');
-          }
-        } else {
-          setErrorMsg(`Error ${status}: ${message}`);
-        }
-      } else if (error.request) {
-        // Request was made but no response received
-        console.log('No response received:', error.request);
-        setErrorMsg('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      if (status === 400) {
+        setErrorMsg(message);
       } else {
-        // Something else happened
-        console.log('Error:', error.message);
-        setErrorMsg('Terjadi kesalahan: ' + error.message);
+        setErrorMsg(`Error: ${message}`);
       }
-    } finally {
-      setIsLoading(false);
+    } else {
+      setErrorMsg('Tidak dapat terhubung ke server');
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="page-wrapper">
