@@ -15,7 +15,7 @@ import {
   createHewan,
   getHewan,
   getHewanById,
-  getHewanByPemilik, // ✅ Tambahkan import yang hilang
+  getHewanByPemilik, 
   updateHewan,
   deleteHewan,
 } from "../controller/DaftarHewanController.js";
