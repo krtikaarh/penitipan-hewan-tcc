@@ -45,6 +45,14 @@ app.use((req, res, next) => {
   next();
 });
 app.use("/", router);
+console.log("Available routes:");
+router.stack.forEach(layer => {
+  if (layer.route) {
+    const path = layer.route.path;
+    const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+    console.log(`${methods} ${path}`);
+  }
+});
 
 // Health check endpoint
 app.get("/", (req, res) => {

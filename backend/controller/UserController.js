@@ -18,6 +18,8 @@ export const getUser = async (req, res) => {
 
 // Register
 export const Register = async (req, res) => {
+  console.log("Register endpoint hit");
+  
   const { username, password } = req.body; // Hanya ambil username dan password
 
   // Validasi input
