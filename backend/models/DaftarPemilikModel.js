@@ -20,7 +20,7 @@ const DaftarPemilik = db.define("daftar_pemilik", {
   alamat: {
     type: DataTypes.TEXT,
     allowNull: false, // ✅ Ubah menjadi false agar konsisten dengan controller
-  },
+  }, 
   email: {
     type: DataTypes.STRING,
     allowNull: false, // ✅ Ubah menjadi false agar konsisten dengan controller
