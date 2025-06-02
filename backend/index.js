@@ -44,6 +44,11 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+app.post("/register", (req, res) => {
+  res.json({ message: "Test register route hit" });
+});
+
 app.use("/", router);
 console.log("Available routes:");
 router.stack.forEach(layer => {
