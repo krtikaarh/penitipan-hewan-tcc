@@ -44,11 +44,11 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
-  _ENV: gs://tcc-hewan/.env                     # lokasi file .env kamu
-  _REGION: us-central1                          # region Cloud Run
-  _DB_NAME: hewan                              # nama database
-  _DB_USERNAME: root                           # user database
-  _DB_PASSWORD: penitipanhewan                  # password user
-  _DB_HOST: 34.45.182.8                        # IP publik Cloud SQL
+  _ENV: gs://tcc-hewan/.env                 
+  _REGION: us-central1                         
+  _DB_NAME: hewan                              
+  _DB_USERNAME: root                          
+  _DB_PASSWORD: penitipanhewan                  
+  _DB_HOST: 34.45.182.8                        
   _ACCESS_TOKEN_SECRET: penitipanhewanilegal205143
   _REFRESH_TOKEN_SECRET: penitipanhewanilegal143205
