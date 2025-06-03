@@ -1,32 +1,35 @@
-import React, { useState } from 'react';
-import axios from '../api/axiosInstance'; // pastikan axiosInstance sudah disetup
-import '../css/login.css';
-import { useNavigate, Link } from 'react-router-dom';
+// update
+
+import { useState } from "react"
+import { useNavigate, Link } from "react-router-dom"
+import { useAuthContext } from "../auth/AuthProvider"
+import "../css/login.css"
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const navigate = useNavigate();
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [errorMsg, setErrorMsg] = useState("")
+  const { login, isLoading } = useAuthContext()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
+    e.preventDefault()
+    setErrorMsg("")
 
-    try {
-      const response = await axios.post('/login', { username, password });
-      const { accessToken } = response.data;
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('username', username);
-      navigate('/home');
-    } catch (error) {
-      if (error.response) {
-        setErrorMsg(error.response.data.message || 'Login gagal');
-      } else {
-        setErrorMsg('Server tidak merespon');
-      }
+    if (!username.trim() || !password.trim()) {
+      setErrorMsg("Username dan password harus diisi")
+      return
     }
-  };
+
+    const result = await login(username, password)
+
+    if (result.success) {
+      console.log("✅ Login successful, redirecting to home")
+      navigate("/home")
+    } else {
+      setErrorMsg(result.error)
+    }
+  }
 
   return (
     <div className="page-wrapper">
@@ -38,10 +41,11 @@ function Login() {
             type="text"
             id="username"
             value={username}
-            onChange={e => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="masukkan username"
             required
             autoComplete="username"
+            disabled={isLoading}
           />
 
           <label htmlFor="password">Password</label>
@@ -49,10 +53,11 @@ function Login() {
             type="password"
             id="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="masukkan password"
             required
             autoComplete="current-password"
+            disabled={isLoading}
           />
 
           {errorMsg && (
@@ -61,14 +66,16 @@ function Login() {
             </div>
           )}
 
-          <button type="submit">Login</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
         </form>
         <div className="form-footer">
           Belum punya akun? <Link to="/register">Daftar</Link>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login
