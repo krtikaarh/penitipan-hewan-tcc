@@ -28,7 +28,7 @@ const DataPemilik = () => {
     try {
       console.log('🔄 Fetching pemilik data for ID:', id);
       // Gunakan endpoint yang benar dengan ID
-      const response = await axiosInstance.get(`/pemilik/${id}`);
+      const response = await axiosInstance.get(`/datapemilik/${id}`);
       console.log('✅ Pemilik data fetched:', response.data);
       
       const pemilik = response.data.data || response.data;
@@ -115,12 +115,12 @@ const DataPemilik = () => {
 
       if (isEdit) {
         // PUT untuk update data existing
-        await axiosInstance.put(`/pemilik/${id}`, cleanFormData);
+        await axiosInstance.put(`/datapemilik/${id}`, cleanFormData);
         console.log('✅ Pemilik data updated successfully');
         alert('Data pemilik berhasil diperbarui!');
       } else {
         // POST untuk create data baru
-        await axiosInstance.post('/pemilik', cleanFormData);
+        await axiosInstance.post('/datapemilik', cleanFormData);
         console.log('✅ Pemilik data created successfully');
         alert('Data pemilik berhasil ditambahkan!');
       }

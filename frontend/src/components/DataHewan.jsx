@@ -32,7 +32,7 @@ const DataHewan = () => {
     try {
       console.log('🔄 Fetching pemilik data...');
       // Gunakan endpoint yang benar untuk mengambil data pemilik
-      const response = await axiosInstance.get('/pemilik');
+      const response = await axiosInstance.get('/datapemilik');
       console.log('✅ Pemilik data fetched:', response.data);
       
       // Adjust sesuai struktur response dari backend
@@ -112,12 +112,12 @@ const DataHewan = () => {
       
       if (isEdit) {
         // PUT untuk update data existing
-        await axiosInstance.put(`/hewan/${id}`, formData);
+        await axiosInstance.put(`/daftarhewan/${id}`, formData);
         console.log('✅ Hewan data updated successfully');
         alert('Data hewan berhasil diperbarui!');
       } else {
         // POST untuk create data baru
-        await axiosInstance.post('/hewan', formData);
+        await axiosInstance.post('/daftarhewan', formData);
         console.log('✅ Hewan data created successfully');
         alert('Data hewan berhasil ditambahkan!');
       }
